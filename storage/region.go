@@ -3,12 +3,13 @@ package storage
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/qiniu/go-sdk/v7/auth"
 	"github.com/qiniu/go-sdk/v7/client"
 	"github.com/qiniu/go-sdk/v7/internal/clientv2"
 	"github.com/qiniu/go-sdk/v7/internal/hostprovider"
-	"strings"
-	"time"
 )
 
 // 存储所在的地区，例如华东，华南，华北
@@ -361,7 +362,7 @@ func getUCClient(config ucClientConfig, mac *auth.Credentials) clientv2.Client {
 				ShouldRetry:   nil,
 			},
 			ShouldFreezeHost:   nil,
-			HostFreezeDuration: 0,
+			HostFreezeDuration: config.HostFreezeDuration,
 			HostProvider:       hostprovider.NewWithHosts(hosts),
 		}),
 		clientv2.NewSimpleRetryInterceptor(clientv2.RetryConfig{
