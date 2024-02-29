@@ -309,6 +309,7 @@ func GetRegionsInfoWithOptions(mac *auth.Credentials, options UCApiOptions) ([]R
 		Regions []RegionInfo `json:"regions"`
 	}
 
+	options.init()
 	reqUrl := endpoint(options.UseHttps, options.firstHost()) + "/regions"
 	c := getUCClient(ucClientConfig{
 		IsUcQueryApi:       false,
