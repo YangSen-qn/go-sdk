@@ -384,7 +384,7 @@ func (m *BucketManager) UpdateObjectStatus(bucketName string, key string, enable
 
 // CreateBucket 创建一个七牛存储空间
 func (m *BucketManager) CreateBucket(bucketName string, regionID RegionID) error {
-	reqURL := fmt.Sprintf("%s/mkbucketv3/%s/region/%s", m.getUCAddress(), bucketName, string(regionID))
+	reqURL := fmt.Sprintf("%s/mkbucketv3/%s/region/%s", getUcHost(m.Cfg.UseHTTPS), bucketName, string(regionID))
 	return clientv2.DoAndDecodeJsonResponse(m.getUCClient(), clientv2.RequestParams{
 		Context:     context.Background(),
 		Method:      clientv2.RequestMethodPost,
@@ -396,7 +396,7 @@ func (m *BucketManager) CreateBucket(bucketName string, regionID RegionID) error
 
 // Buckets 用来获取空间列表，如果指定了 shared 参数为 true，那么一同列表被授权访问的空间
 func (m *BucketManager) Buckets(shared bool) (buckets []string, err error) {
-	reqURL := fmt.Sprintf("%s/buckets?shared=%v", m.getUCAddress(), shared)
+	reqURL := fmt.Sprintf("%s/buckets?shared=%v", getUcHost(m.Cfg.UseHTTPS), shared)
 	err = clientv2.DoAndDecodeJsonResponse(m.getUCClient(), clientv2.RequestParams{
 		Context:     context.Background(),
 		Method:      clientv2.RequestMethodPost,
@@ -438,7 +438,7 @@ func (m *BucketManager) BucketsV4(input *BucketV4Input) (output BucketsV4Output,
 
 // DropBucket 删除七牛存储空间
 func (m *BucketManager) DropBucket(bucketName string) (err error) {
-	reqURL := fmt.Sprintf("%s/drop/%s", m.getUCAddress(), bucketName)
+	reqURL := fmt.Sprintf("%s/drop/%s", getUcHost(m.Cfg.UseHTTPS), bucketName)
 	return clientv2.DoAndDecodeJsonResponse(m.getUCClient(), clientv2.RequestParams{
 		Context:     context.Background(),
 		Method:      clientv2.RequestMethodPost,
@@ -771,7 +771,7 @@ type DomainInfo struct {
 
 // ListBucketDomains 返回绑定在存储空间中的域名信息
 func (m *BucketManager) ListBucketDomains(bucket string) (info []DomainInfo, err error) {
-	reqURL := fmt.Sprintf("%s/v3/domains?tbl=%s", m.getUCAddress(), bucket)
+	reqURL := fmt.Sprintf("%s/v3/domains?tbl=%s", getUcHost(m.Cfg.UseHTTPS), bucket)
 	err = clientv2.DoAndDecodeJsonResponse(m.getUCClient(), clientv2.RequestParams{
 		Context:     context.Background(),
 		Method:      clientv2.RequestMethodGet,
@@ -796,7 +796,7 @@ func (m *BucketManager) Prefetch(bucket, key string) (err error) {
 
 // SetImage 用来设置空间镜像源
 func (m *BucketManager) SetImage(siteURL, bucket string) (err error) {
-	reqURL := fmt.Sprintf("%s%s", m.getUCAddress(), uriSetImage(siteURL, bucket))
+	reqURL := fmt.Sprintf("%s%s", getUcHost(m.Cfg.UseHTTPS), uriSetImage(siteURL, bucket))
 	return clientv2.DoAndDecodeJsonResponse(m.getUCClient(), clientv2.RequestParams{
 		Context:     context.Background(),
 		Method:      clientv2.RequestMethodPost,
@@ -808,7 +808,7 @@ func (m *BucketManager) SetImage(siteURL, bucket string) (err error) {
 
 // SetImageWithHost 用来设置空间镜像源，额外添加回源Host头部
 func (m *BucketManager) SetImageWithHost(siteURL, bucket, host string) (err error) {
-	reqURL := fmt.Sprintf("%s%s", m.getUCAddress(),
+	reqURL := fmt.Sprintf("%s%s", getUcHost(m.Cfg.UseHTTPS),
 		uriSetImageWithHost(siteURL, bucket, host))
 	return clientv2.DoAndDecodeJsonResponse(m.getUCClient(), clientv2.RequestParams{
 		Context:     context.Background(),
@@ -821,7 +821,7 @@ func (m *BucketManager) SetImageWithHost(siteURL, bucket, host string) (err erro
 
 // UnsetImage 用来取消空间镜像源设置
 func (m *BucketManager) UnsetImage(bucket string) (err error) {
-	reqURL := fmt.Sprintf("%s%s", m.getUCAddress(), uriUnsetImage(bucket))
+	reqURL := fmt.Sprintf("%s%s", getUcHost(m.Cfg.UseHTTPS), uriUnsetImage(bucket))
 	return clientv2.DoAndDecodeJsonResponse(m.getUCClient(), clientv2.RequestParams{
 		Context:     context.Background(),
 		Method:      clientv2.RequestMethodPost,
@@ -928,7 +928,6 @@ func (m *BucketManager) Zone(bucket string) (z *Zone, err error) {
 	z, err = GetRegionWithOptions(m.Mac.AccessKey, bucket, UCApiOptions{
 		UseHttps:           m.Cfg.UseHTTPS,
 		RetryMax:           0,
-		Hosts:              m.Cfg.UCHosts,
 		HostFreezeDuration: 0,
 		Client:             m.Client,
 	})
