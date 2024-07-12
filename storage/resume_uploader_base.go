@@ -83,6 +83,7 @@ var (
 func worker(tasks chan func()) {
 	for task := range tasks {
 		task()
+		task = nil
 	}
 }
 
