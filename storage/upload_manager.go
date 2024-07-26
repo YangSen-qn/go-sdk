@@ -297,7 +297,7 @@ func (manager *UploadManager) putByResumeV1(ctx context.Context, ret interface{}
 		TryTimes:           extra.TryTimes,
 		HostFreezeDuration: extra.HostFreezeDuration,
 		Progresses:         nil,
-		Notify: func(blkIdx int, blkSize int, ret *BlkputRet) {
+		Notify: func(blkIdx int, blkSize int, ret *BlkputRet) error {
 			locker.Lock()
 			offset := int64(blkIdx)*blockSize + int64(blkSize) - extra.PartSize
 			if offset > uploadedSize {
@@ -305,6 +305,7 @@ func (manager *UploadManager) putByResumeV1(ctx context.Context, ret interface{}
 			}
 			locker.Unlock()
 			extra.OnProgress(source.Size(), uploadedSize)
+			return nil
 		},
 		NotifyErr: nil,
 	}
@@ -338,9 +339,9 @@ func (manager *UploadManager) putByResumeV2(ctx context.Context, ret interface{}
 		TryTimes:           extra.TryTimes,
 		HostFreezeDuration: extra.HostFreezeDuration,
 		Progresses:         nil,
-		Notify: func(partNumber int64, ret *UploadPartsRet) {
+		Notify: func(partNumber int64, ret *UploadPartsRet) error {
 			if partNumber < 1 {
-				return
+				return nil
 			}
 			locker.Lock()
 			offset := (partNumber - 1) * extra.PartSize
@@ -349,6 +350,7 @@ func (manager *UploadManager) putByResumeV2(ctx context.Context, ret interface{}
 			}
 			locker.Unlock()
 			extra.OnProgress(source.Size(), uploadedSize)
+			return nil
 		},
 		NotifyErr: nil,
 	}

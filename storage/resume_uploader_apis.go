@@ -54,12 +54,12 @@ type RputExtra struct {
 	// 自定义 meta：key 以"x-qn-meta-"开头，而且 value 不能为空 eg: key为x-qn-meta-aaa
 	Params             map[string]string
 	UpHost             string
-	MimeType           string                                        // 可选。
-	ChunkSize          int                                           // 可选。每次上传的Chunk大小
-	TryTimes           int                                           // 可选。尝试次数
-	HostFreezeDuration time.Duration                                 // 可选。主备域名冻结时间（默认：600s），当一个域名请求失败（单个域名会被重试 TryTimes 次），会被冻结一段时间，使用备用域名进行重试，在冻结时间内，域名不能被使用，当一个操作中所有域名竣备冻结操作不在进行重试，返回最后一次操作的错误。
-	Progresses         []BlkputRet                                   // 可选。上传进度
-	Notify             func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	MimeType           string                                              // 可选。
+	ChunkSize          int                                                 // 可选。每次上传的Chunk大小
+	TryTimes           int                                                 // 可选。尝试次数
+	HostFreezeDuration time.Duration                                       // 可选。主备域名冻结时间（默认：600s），当一个域名请求失败（单个域名会被重试 TryTimes 次），会被冻结一段时间，使用备用域名进行重试，在冻结时间内，域名不能被使用，当一个操作中所有域名竣备冻结操作不在进行重试，返回最后一次操作的错误。
+	Progresses         []BlkputRet                                         // 可选。上传进度
+	Notify             func(blkIdx int, blkSize int, ret *BlkputRet) error // 可选。进度提示（注意多个block是并行传输的）
 	NotifyErr          func(blkIdx int, blkSize int, err error)
 }
 
@@ -74,7 +74,9 @@ func (extra *RputExtra) init() {
 		extra.HostFreezeDuration = 10 * 60 * time.Second
 	}
 	if extra.Notify == nil {
-		extra.Notify = func(blkIdx, blkSize int, ret *BlkputRet) {}
+		extra.Notify = func(blkIdx, blkSize int, ret *BlkputRet) error {
+			return nil
+		}
 	}
 	if extra.NotifyErr == nil {
 		extra.NotifyErr = func(blkIdx, blkSize int, err error) {}
@@ -146,12 +148,12 @@ type RputV2Extra struct {
 	Metadata           map[string]string // 可选。用户自定义文件 metadata 信息
 	CustomVars         map[string]string // 可选。用户自定义参数，以"x:"开头，而且值不能为空，否则忽略
 	UpHost             string
-	MimeType           string                                      // 可选。
-	PartSize           int64                                       // 可选。每次上传的块大小
-	TryTimes           int                                         // 可选。尝试次数
-	HostFreezeDuration time.Duration                               // 可选。主备域名冻结时间（默认：600s），当一个域名请求失败（单个域名会被重试 TryTimes 次），会被冻结一段时间，使用备用域名进行重试，在冻结时间内，域名不能被使用，当一个操作中所有域名竣备冻结操作不在进行重试，返回最后一次操作的错误。
-	Progresses         []UploadPartInfo                            // 上传进度
-	Notify             func(partNumber int64, ret *UploadPartsRet) // 可选。进度提示（注意多个block是并行传输的）
+	MimeType           string                                            // 可选。
+	PartSize           int64                                             // 可选。每次上传的块大小
+	TryTimes           int                                               // 可选。尝试次数
+	HostFreezeDuration time.Duration                                     // 可选。主备域名冻结时间（默认：600s），当一个域名请求失败（单个域名会被重试 TryTimes 次），会被冻结一段时间，使用备用域名进行重试，在冻结时间内，域名不能被使用，当一个操作中所有域名竣备冻结操作不在进行重试，返回最后一次操作的错误。
+	Progresses         []UploadPartInfo                                  // 上传进度
+	Notify             func(partNumber int64, ret *UploadPartsRet) error // 可选。进度提示（注意多个block是并行传输的）
 	NotifyErr          func(partNumber int64, err error)
 }
 
@@ -166,7 +168,9 @@ func (extra *RputV2Extra) init() {
 		extra.HostFreezeDuration = 10 * 60 * time.Second
 	}
 	if extra.Notify == nil {
-		extra.Notify = func(partNumber int64, ret *UploadPartsRet) {}
+		extra.Notify = func(partNumber int64, ret *UploadPartsRet) error {
+			return nil
+		}
 	}
 	if extra.NotifyErr == nil {
 		extra.NotifyErr = func(partNumber int64, err error) {}

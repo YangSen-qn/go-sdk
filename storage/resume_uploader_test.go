@@ -72,8 +72,9 @@ func TestPutWithoutSize(t *testing.T) {
 			testKey := fmt.Sprintf("testRPutFileKey_%d", r.Int())
 			err := resumeUploader.PutWithoutSize(context.Background(), &putRet, upToken, testKey, rd, &RputExtra{
 				ChunkSize: chunkSize,
-				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) {
+				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) error {
 					t.Logf("Notify: blkIdx: %d, blkSize: %d, ret: %#v", blkIdx, blkSize, ret)
+					return nil
 				},
 				NotifyErr: func(blkIdx int, blkSize int, err error) {
 					t.Logf("NotifyErr: blkIdx: %d, blkSize: %d, err: %s", blkIdx, blkSize, err)
@@ -127,8 +128,9 @@ func TestPutWithSize(t *testing.T) {
 			err := resumeUploader.Put(context.Background(), &putRet, upToken, testKey, bytes.NewReader(data), size, &RputExtra{
 				ChunkSize: chunkSize,
 				UpHost:    upHost,
-				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) {
+				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) error {
 					t.Logf("Notify: blkIdx: %d, blkSize: %d, ret: %#v", blkIdx, blkSize, ret)
+					return nil
 				},
 				NotifyErr: func(blkIdx int, blkSize int, err error) {
 					t.Logf("NotifyErr: blkIdx: %d, blkSize: %d, err: %s", blkIdx, blkSize, err)
@@ -169,8 +171,9 @@ func TestPutWithoutSizeAndKey(t *testing.T) {
 			rd := io.TeeReader(&io.LimitedReader{R: r, N: size}, md5Sumer)
 			err := resumeUploader.PutWithoutKeyAndSize(context.Background(), &putRet, upToken, rd, &RputExtra{
 				ChunkSize: chunkSize,
-				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) {
+				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) error {
 					t.Logf("Notify: blkIdx: %d, blkSize: %d, ret: %#v", blkIdx, blkSize, ret)
+					return nil
 				},
 				NotifyErr: func(blkIdx int, blkSize int, err error) {
 					t.Logf("NotifyErr: blkIdx: %d, blkSize: %d, err: %s", blkIdx, blkSize, err)
@@ -223,11 +226,12 @@ func TestPutWithRecovery(t *testing.T) {
 		err = resumeUploader.PutFile(ctx, &putRet, upToken, testKey, fileName, &RputExtra{
 			Recorder:  recorder,
 			ChunkSize: (1 << blockBits) / 2,
-			Notify: func(blkIdx int, blkSize int, ret *BlkputRet) {
+			Notify: func(blkIdx int, blkSize int, ret *BlkputRet) error {
 				t.Logf("[%d] Notify: blkIdx: %d, blkSize: %d, ret: %#v", i, blkIdx, blkSize, ret)
 				if atomic.AddUint32(&counter, 1) >= 2 {
 					cancelFunc()
 				}
+				return nil
 			},
 			NotifyErr: func(blkIdx int, blkSize int, err error) {
 				t.Logf("[%d] NotifyErr: blkIdx: %d, blkSize: %d, err: %s", i, blkIdx, blkSize, err)
@@ -283,8 +287,9 @@ func TestPutWithBackup(t *testing.T) {
 			testKey := fmt.Sprintf("testRPutFileKey_%d", r.Int())
 			err := uploader.Put(context.Background(), &putRet, upToken, testKey, bytes.NewReader(data), size, &RputExtra{
 				ChunkSize: chunkSize,
-				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) {
+				Notify: func(blkIdx int, blkSize int, ret *BlkputRet) error {
 					t.Logf("Notify: blkIdx: %d, blkSize: %d, ret: %#v", blkIdx, blkSize, ret)
+					return nil
 				},
 				NotifyErr: func(blkIdx int, blkSize int, err error) {
 					t.Logf("NotifyErr: blkIdx: %d, blkSize: %d, err: %s", blkIdx, blkSize, err)

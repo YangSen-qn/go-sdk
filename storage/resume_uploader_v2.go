@@ -6,13 +6,14 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"github.com/qiniu/go-sdk/v7/client"
-	"github.com/qiniu/go-sdk/v7/internal/hostprovider"
 	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"sync"
+
+	"github.com/qiniu/go-sdk/v7/client"
+	"github.com/qiniu/go-sdk/v7/internal/hostprovider"
 )
 
 // ResumeUploaderV2 表示一个分片上传 v2 的对象
@@ -329,7 +330,9 @@ func (impl *resumeUploaderV2Impl) uploadChunk(ctx context.Context, c chunk) erro
 		impl.extra.NotifyErr(partNumber, err)
 		impl.deleteUploadRecordIfNeed(err, false)
 	} else {
-		impl.extra.Notify(partNumber, &ret)
+		if nErr := impl.extra.Notify(partNumber, &ret); nErr != nil {
+			return nErr
+		}
 
 		select {
 		case <-ctx.Done():

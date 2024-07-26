@@ -44,8 +44,9 @@ func TestPutWithoutSizeV2(t *testing.T) {
 			testKey := fmt.Sprintf("testRPutFileV2Key_%d", r.Int())
 			err := resumeUploaderV2.PutWithoutSize(context.Background(), &putRet, upToken, testKey, rd, &RputV2Extra{
 				PartSize: partSize,
-				Notify: func(partNumber int64, ret *UploadPartsRet) {
+				Notify: func(partNumber int64, ret *UploadPartsRet) error {
 					t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
+					return nil
 				},
 				NotifyErr: func(partNumber int64, err error) {
 					t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)
@@ -99,8 +100,9 @@ func TestPutWithSizeV2(t *testing.T) {
 			err := resumeUploaderV2.Put(context.Background(), &putRet, upToken, testKey, bytes.NewReader(data), size, &RputV2Extra{
 				PartSize: partSize,
 				UpHost:   upHost,
-				Notify: func(partNumber int64, ret *UploadPartsRet) {
+				Notify: func(partNumber int64, ret *UploadPartsRet) error {
 					t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
+					return nil
 				},
 				NotifyErr: func(partNumber int64, err error) {
 					t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)
@@ -130,8 +132,9 @@ func TestPutWithSizeV2(t *testing.T) {
 			}
 			err = resumeUploaderV2.PutFile(context.Background(), &putRet, upToken, testKey, tmpFile.Name(), &RputV2Extra{
 				PartSize: partSize,
-				Notify: func(partNumber int64, ret *UploadPartsRet) {
+				Notify: func(partNumber int64, ret *UploadPartsRet) error {
 					t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
+					return nil
 				},
 				NotifyErr: func(partNumber int64, err error) {
 					t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)
@@ -162,8 +165,9 @@ func TestPutWithoutKeyV2(t *testing.T) {
 		t.Error(err)
 	}
 	err := resumeUploaderV2.PutWithoutKey(context.Background(), &putRet, upToken, bytes.NewReader(data), int64(len(data)), &RputV2Extra{
-		Notify: func(partNumber int64, ret *UploadPartsRet) {
+		Notify: func(partNumber int64, ret *UploadPartsRet) error {
 			t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
+			return nil
 		},
 		NotifyErr: func(partNumber int64, err error) {
 			t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)
@@ -184,8 +188,9 @@ func TestPutWithoutKeyV2(t *testing.T) {
 		t.Error(err)
 	}
 	err = resumeUploaderV2.PutFileWithoutKey(context.Background(), &putRet, upToken, tmpFile.Name(), &RputV2Extra{
-		Notify: func(partNumber int64, ret *UploadPartsRet) {
+		Notify: func(partNumber int64, ret *UploadPartsRet) error {
 			t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
+			return nil
 		},
 		NotifyErr: func(partNumber int64, err error) {
 			t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)
@@ -232,11 +237,12 @@ func TestPutWithRecoveryV2(t *testing.T) {
 		counter := uint32(0)
 		err = resumeUploaderV2.PutFile(ctx, &putRet, upToken, testKey, fileName, &RputV2Extra{
 			Recorder: recorder,
-			Notify: func(partNumber int64, ret *UploadPartsRet) {
+			Notify: func(partNumber int64, ret *UploadPartsRet) error {
 				t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
 				if atomic.AddUint32(&counter, 1) >= 2 {
 					cancelFunc()
 				}
+				return nil
 			},
 			NotifyErr: func(partNumber int64, err error) {
 				t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)
@@ -291,8 +297,9 @@ func TestPutWithBackupV2(t *testing.T) {
 			}
 			testKey := fmt.Sprintf("testRPutFileKey_%d", r.Int())
 			err := uploader.Put(context.Background(), &putRet, upToken, testKey, bytes.NewReader(data), size, &RputV2Extra{
-				Notify: func(partNumber int64, ret *UploadPartsRet) {
+				Notify: func(partNumber int64, ret *UploadPartsRet) error {
 					t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
+					return nil
 				},
 				NotifyErr: func(partNumber int64, err error) {
 					t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)
@@ -325,8 +332,9 @@ func TestPutWithEmptyKeyV2(t *testing.T) {
 		t.Error(err)
 	}
 	err := resumeUploaderV2.Put(context.Background(), &putRet, upToken, "", bytes.NewReader(data), int64(len(data)), &RputV2Extra{
-		Notify: func(partNumber int64, ret *UploadPartsRet) {
+		Notify: func(partNumber int64, ret *UploadPartsRet) error {
 			t.Logf("Notify: partNumber: %d, ret: %#v", partNumber, ret)
+			return nil
 		},
 		NotifyErr: func(partNumber int64, err error) {
 			t.Logf("NotifyErr: partNumber: %d, err: %s", partNumber, err)

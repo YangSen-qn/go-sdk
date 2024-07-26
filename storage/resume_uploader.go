@@ -381,7 +381,9 @@ func (impl *resumeUploaderImpl) uploadChunk(ctx context.Context, c chunk) error 
 		impl.save(ctx)
 	}()
 
-	impl.extra.Notify(blkPutRet.blkIdx, int(totalChunkSize), &blkPutRet)
+	if nErr := impl.extra.Notify(blkPutRet.blkIdx, int(totalChunkSize), &blkPutRet); nErr != nil {
+		return nErr
+	}
 
 	select {
 	case <-ctx.Done():
